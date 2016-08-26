@@ -38,10 +38,10 @@
 #define I2C_MAX_QUERIES             8
 #define I2C_REGISTER_NOT_SPECIFIED  -1
 
-#define datapin A1  
-#define clockpin A0
-
-HX711 hx(clockpin, datapin, 128);
+//#define datapin A1  
+//#define clockpin A0
+//
+//HX711 hx(clockpin, datapin, 128);
 
 // the minimum interval for sampling analog input
 #define MINIMUM_SAMPLING_INTERVAL 10
@@ -438,12 +438,37 @@ void sysexCallback(byte command, byte argc, byte *argv)
     case 4:
       switch (argv[0]) {
         case 4:
-          DHT.read11(argv[1]);
+        {
+         // DHT.read11(argv[1]);
           Firmata.write(START_SYSEX);
           Firmata.write(4);
           Firmata.write(4);
           Firmata.write(argv[1]);
-          strData = String(int(DHT.humidity * 100)) + String(int(DHT.temperature * 100));
+
+
+                                   ////////////////////////////////////////////////////////////////////////////////////////////////
+   //       #define datapin A1  
+   //       #define clockpin A0
+                                   
+          HX711 hx(clockpin, datapin, 128);   // defines the two pins to use
+          float calc = 418.72;
+  
+          float sum = 0;
+          for(int i=0;i<10;i++)
+            {
+           sum+=hx.read();
+            }
+           sum = sum/10;
+           float result_TTL = (sum-139660)/418.72;
+           Serial.println(result_TTL);
+           if (result_TTL <5)
+            {
+             Serial.println("Cup has been taken away");
+             }
+            delay(1000);
+          
+//          strData = String(int(DHT.humidity * 100)) + String(int(DHT.temperature * 100));
+            strData = String(float(result_TTL));
           //Serial.println(strData);
           strLen = strData.length();
           for (int i = 0; i < strLen; i++) {
@@ -451,6 +476,7 @@ void sysexCallback(byte command, byte argc, byte *argv)
           }
           Firmata.write(END_SYSEX);
           break;
+        }
         case 7: //Buzzer f004070b131805f7
           pinMode(argv[1], OUTPUT);
           tone(argv[1], (String(argv[2], HEX)).toInt() * 100 +
@@ -669,22 +695,22 @@ void disableI2CPins() {
   queryIndex = -1;
 }
 
-void hx711() {
-  double calc = 418.72;
-
-double sum = 0;
-for(int i=0;i<10;i++){
-  sum+=hx.read();
-  }
-  sum = sum/10;
-  double result = (sum-139660)/418.72;
-  Serial.println(result);
-  if (result <5){
-     Serial.println("Cup has been taken away");
-    }
-delay(1000);
-
-  }
+//void hx711() {
+//  double calc = 418.72;
+//
+//double sum = 0;
+//for(int i=0;i<10;i++){
+//  sum+=hx.read();
+//  }
+//  sum = sum/10;
+//  double result = (sum-139660)/418.72;
+//  Serial.println(result);
+//  if (result <5){
+//     Serial.println("Cup has been taken away");
+//    }
+//delay(1000);
+//
+//  }
 
 /*==============================================================================
    SETUP()
@@ -772,23 +798,23 @@ void setup()
 void loop()
 {
 
-  //=================== HX711 START ===================
-  
-double calc = 418.72;
-
-double sum = 0;
-for(int i=0;i<10;i++){
-  sum+=hx.read();
-  }
-  sum = sum/10;
-  double result = (sum-139660)/418.72;
-  Serial.println(result);
-  if (result <5){
-     Serial.println("Cup has been taken away");
-    }
-delay(1000);
-
-  //=================== HX711 END ===================
+//  //=================== HX711 START ===================
+//  
+//double calc = 418.72;
+//
+//double sum = 0;
+//for(int i=0;i<10;i++){
+//  sum+=hx.read();
+//  }
+//  sum = sum/10;
+//  double result = (sum-139660)/418.72;
+//  Serial.println(result);
+//  if (result <5){
+//     Serial.println("Cup has been taken away");
+//    }
+//delay(1000);
+//
+//  //=================== HX711 END ===================
   
   byte pin, analogPin;
 
